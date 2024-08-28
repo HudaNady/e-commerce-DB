@@ -32,7 +32,7 @@ export const authentication=asyncHandler(
 )
 export const authorization =(roles)=>{
     return asyncHandler(async(req,res,next)=>{
-        if(!roles.include(req.user.rol)){
+        if(!Object.values(roles).includes(req.user.rol)){
         return next(new AppError("forbidden",401))
     }
     return next()

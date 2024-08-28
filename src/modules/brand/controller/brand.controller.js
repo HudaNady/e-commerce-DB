@@ -10,6 +10,7 @@ export const addBrand=asyncHandler(
     async (req, res, next) => {
         const {name}=req.body
         req.body.image=req.file?.filename
+        req.body.createdBy=req.user.userId
         req.body.slug= slugify(name)
         const brand = await Brand.insertMany([req.body]);
         return res.status(201).json({ message: "done", brand });
@@ -39,8 +40,9 @@ export  const updateBrand=asyncHandler(
     async (req, res, next) => {
         const {name}=req.body
         req.body.slug= slugify(name)
-        const oldSubCategory = await SubCategory.findById(req.params._id);
-        const oldImagePath = oldSubCategory.image;
+        req.body.updatedBy=req.user.userId
+        const oldBrand = await Brand.findById(req.params._id);
+        const oldImagePath = oldBrand.image;
         req.body.image=req.file?.filename
         const brand= await Brand.findByIdAndUpdate(req.params._id,req.body,{new:true})
        ///delete old image in upload folder

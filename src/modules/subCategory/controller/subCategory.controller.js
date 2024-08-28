@@ -10,6 +10,7 @@ export const addSubCategory = asyncHandler(
     async (req, res, next) => {
         const { name } = req.body
         req.body.slug = slugify(name)
+        req.body.createdBy=req.user.userId
         req.body.image = req.file?.filename
         const subCategory = await SubCategory.insertMany([req.body]);
         return res.status(201).json({ message: "done", subCategory });
@@ -38,6 +39,7 @@ export const getSubCategoryById = asyncHandler(
 export const updateSubCategory = asyncHandler(
     async (req, res, next) => {
         req.body.slug = slugify(req.body.name)
+        req.body.updatedBy=req.user.userId
         const oldSubCategory = await SubCategory.findById(req.params._id);
         const oldImagePath = oldSubCategory.image;
         req.body.image = req.file?.filename

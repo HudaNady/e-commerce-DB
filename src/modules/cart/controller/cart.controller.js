@@ -5,70 +5,74 @@ import asyncHandler from "../../../middleware/asyncHandler.js";
 import AppError from "../../../utils/Error.js";
 
 async function calc(cart){
-    const subTotal=cart.products.reduce((prev,element)=>prev+=element.quntity*element.price)
-    cart.subTotal=subTotal
+    const subTotal=cart.products.reduce((prev,element)=>prev+element.quantity*element.price,0)
     if(!cart.discount){
         cart.total=subTotal
     }
     cart.total=subTotal-(subTotal*cart.discount)/100
+    cart.subTotal=subTotal
     await cart.save()
 }
 export const addCart=asyncHandler(
     async (req, res, next) => {
         const cartExist= await Cart.findOne({user:req.user.userId})
         if(!cartExist){
-            const newCart = await Cart.create({user:req.user.userId});
+            const newCart = await Cart.create({user:req.user.userId});            
             const product= await Product.findById(req.body.product)
             if(!product){
                 return next(new AppError("product not found ", 404));
             }
             req.body.price=product.priceAfterDiscount
-            if(product.stock<req.body.quntity){
+            if(product.stock<req.body.quantity){
                 return next(new AppError("out of stock ", 400));
             }
             const addToCart = await Cart.findOneAndUpdate(
                 {user:req.user.userId},
                 {
-                    $push:{products:req.body.product}
+                    $push:{products:req.body}
                 },
                 {
                     new:true
                 }
             );
+            await addToCart.save()
             calc(addToCart)
             return res.status(201).json({ message: "done", addToCart,status:201 });
         }
         let productExist=false
         const product= await Product.findById(req.body.product)
+        
             if(!product){
                 return next(new AppError("product not found ", 404));
             }
             req.body.price=product.priceAfterDiscount
-            if(product.stock<req.body.quntity){
+            if(product.stock<req.body.quantity){
                 return next(new AppError("out of stock ", 400));
-            }
+            }            
             cartExist.products.forEach(async(pro)=>{
                 if(pro.product==req.body.product){
                     productExist=true
-                    if(product.stock<req.body.quntity+pro.quntity){
+                    if(product.stock<req.body.quantity+pro.quantity){
                         return next(new AppError("out of stock ", 400));
                     }
-                    pro.quntity=req.body.quntity+pro.quntity
+                    pro.quantity=req.body.quantity+pro.quantity
                     await cartExist.save()
                     calc(cartExist)
                     return res.status(200).json({ message: "done", cartExist,status:200 });
                 }
             })
-        if(!productExist){
+        if(!productExist){            
             const addToCart = await Cart.findOneAndUpdate(
                 {user:req.user.userId},
                 {
-                    $push:{products:req.body.product}
+                    $push:{products:req.body}
                 },
                 {
                     new:true
                 }
             );
+            
+            await addToCart.save()
             calc(addToCart)
             return res.status(201).json({ message: "done", addToCart,status:201 });
         }
@@ -110,6 +114,7 @@ export  const deleteProduct=asyncHandler(
         if(!cart){
             next(new AppError("cart not found", 404))
         }
+        await cart.save()
         calc(cart)
         return res.status(200).json({ message: "done", cart ,status:200 })
     }
@@ -124,7 +129,7 @@ export  const updateProductQuantity=asyncHandler(
         cart.products.forEach(async(pro)=>{
             if(pro.product==req.params._id){
                 productExist=true
-                pro.quntity=req.body.quntity
+                pro.quantity=req.body.quantity
                 await cart.save()
                 calc(cart)
                 return res.status(200).json({ message: "done", cart,status:200 });

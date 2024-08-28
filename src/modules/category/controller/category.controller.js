@@ -10,6 +10,7 @@ export const addCategory=asyncHandler(
     async (req, res, next) => {
         const {name}=req.body
         req.body.image=req.file?.filename
+        req.body.createdBy=req.user.userId
         req.body.slug= slugify(name)
         const category = await Category.insertMany([req.body]);
         return res.status(201).json({ message: "done", category });
@@ -39,8 +40,9 @@ export  const updateCategory=asyncHandler(
     async (req, res, next) => {
         const {name}=req.body
         req.body.slug= slugify(name)
-        const oldSubCategory = await SubCategory.findById(req.params._id);
-        const oldImagePath = oldSubCategory.image;
+        req.body.updatedBy=req.user.userId
+        const oldCategory = await Category.findById(req.params._id);
+        const oldImagePath = oldCategory.image;
         req.body.image=req.file?.filename
         const category= await Category.findByIdAndUpdate(req.params._id,req.body,{new:true})
         ///delete old image in upload folder

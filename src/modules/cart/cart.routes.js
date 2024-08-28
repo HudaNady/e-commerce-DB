@@ -5,7 +5,7 @@ import roles from "../../types/roles.js";
 
 
 const router=Router()
-router.post('/addaCart',authentication,authorization([roles.user]),cart.addCart)
+router.post('/addCart',authentication,authorization([roles.user]),cart.addCart)
 router.post('/applyCoupon',authentication,authorization([roles.user]),cart.applyCoupon)
 router.get('/getCart',authentication,authorization([roles.user]),cart.getCart)
 router.put('/deleteProduct/:_id',authentication,authorization([roles.user]),cart.deleteProduct)

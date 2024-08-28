@@ -8,9 +8,10 @@ import ApiFeatures from "../../../utils/apiFeatures.js";
 
 export const addProduct = asyncHandler(
     async (req, res, next) => {
-        req.body.slug = slugify(req.body.name)
-        req.body.mainImage = req.files?.mainImage[0].filename
-        req.body.coverImage = req.files?.coverImage.map(ele => ele.filename)
+        req.body.slug = slugify(req.body.title)
+        req.body.createdBy=req.user.userId
+        req.body.mainImage = req?.files?.mainImage[0].filename
+        req.body.coverImage = req?.files?.coverImage?.map(ele => ele.filename)
         const product = await Product.insertMany([req.body]);
         return res.status(201).json({ message: "done", product });
     }
@@ -66,7 +67,8 @@ export const deleteProduct = asyncHandler(
 
 export const updateProduct = asyncHandler(
     async (req, res, next) => {
-        req.body.slug = slugify(req.body.name)
+        req.body.slug = slugify(req.body.title)
+        req.body.updatedBy=req.user.userId
         const oldProduct = await Product.findById(req.params._id);
         if (req.files?.mainImage) {
             req.body.mainImage = req.files?.mainImage[0]?.filename

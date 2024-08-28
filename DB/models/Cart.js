@@ -14,7 +14,7 @@ const cartSchema= new mongoose.Schema({
                 ref:'Product',
                 required:[true,'product is required']
             },
-            quntity:{
+            quantity:{
                 type:Number,
                 default:1
             },
@@ -27,7 +27,6 @@ const cartSchema= new mongoose.Schema({
     ],
     subTotal:{
         type:Number,
-        required:true,
         min:[0,'min price is 0']
     },
     discount:{
@@ -36,7 +35,6 @@ const cartSchema= new mongoose.Schema({
     },
     total:{
         type:Number,
-        required:true,
         min:0
     }
 },{

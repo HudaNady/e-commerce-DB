@@ -17,12 +17,12 @@ const subCategorySchema= new mongoose.Schema({
     image:String,
     createdBy:{
         type:Types.ObjectId,
-        // ref:'User',
-        // required:[true,'createdBy is required']
+        ref:'User',
+        required:[true,'createdBy is required']
     },
     updatedBy:{
         type:Types.ObjectId,
-        // ref:'User',
+        ref:'User',
     },
     category:{
         type:Types.ObjectId,

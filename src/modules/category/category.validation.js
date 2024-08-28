@@ -7,7 +7,7 @@ export const addCategorySchema=joi.object({
         path:joi.string().required(),
         filename:joi.string().required(),
         destination:joi.string().required(),
-        minetype:joi.string().required(),
+        mimetype:joi.string().required(),
         encoding:joi.string().required(),
         fieldname:joi.string().required()
     })

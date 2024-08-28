@@ -3,10 +3,11 @@ import Order from "../../../../DB/models/Order.js";
 import Product from "../../../../DB/models/Product.js";
 import asyncHandler from "../../../middleware/asyncHandler.js";
 import AppError from "../../../utils/Error.js";
+import Stripe from "stripe";
 
 
-
-export const addCashOrder=asyncHandler(
+const stripe =new Stripe('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+export const addOrder=asyncHandler(
     async (req, res, next) => {
         const cart= await Cart.findOne({user:req.user.userId})
         if(!cart){
@@ -35,6 +36,32 @@ export const addCashOrder=asyncHandler(
         const order=new Order(req.body)
         const newOrder=order.save()
         await Cart.findOneAndDelete({user:req.user.userId})
+
+        if(req.body.paymentMethod=="card"){
+            const YOUR_DOMAIN = 'http://localhost:4242';
+            const session = await stripe.checkout.sessions.create({
+                line_items: [
+                {
+                    price_data: {
+                        currency:"egp",
+                        unit_amount:(await newOrder).total*100,
+                        product_data:{
+                            name:"total price"
+                        }
+                    },
+                    quantity: 1,
+                },
+                ],
+                mode: 'payment',
+                success_url: `${YOUR_DOMAIN}?success=true`,
+                cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+                client_reference_id:req.user.userId,
+                metadata:{
+                    order_id:(await newOrder)._id
+                    }
+            });
+            return res.status(200).json( {session});
+        }
         return res.status(201).json({ message: "done",newOrder ,status:201 });
     }
 )

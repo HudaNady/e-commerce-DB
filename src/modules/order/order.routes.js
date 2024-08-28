@@ -5,7 +5,7 @@ import roles from "../../types/roles.js";
 
 
 const router=Router()
-router.post('/addaOrder',authentication,authorization([roles.user]),order.addOrder)
+router.post('/addOrder',authentication,authorization([roles.user]),order.addOrder)
 
 
 export default router

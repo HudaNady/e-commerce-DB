@@ -21,13 +21,13 @@ export const addOrder=asyncHandler(
             if(!product){
                 return next(new AppError(`not found product by ${ele.product} `, 404));
             }
-            if(product.stock<ele.quntity){
+            if(product.stock<ele.quantity){
                 return next(new AppError(`out of stock ${ele.product},valid in ${product.stock} `, 400));
             }
         })
         cart.products.forEach(async(ele)=>{
         await Product.findByIdAndUpdate(ele.product,{
-            $inc:{sold:ele.quntity,stock:-ele.quntity}
+            $inc:{sold:ele.quantity,stock:-ele.quantity}
         })
         })
         req.body.products=cart.products
@@ -56,9 +56,9 @@ export const addOrder=asyncHandler(
                 success_url: `${YOUR_DOMAIN}?success=true`,
                 cancel_url: `${YOUR_DOMAIN}?canceled=true`,
                 client_reference_id:req.user.userId,
-                metadata:{
-                    order_id:(await newOrder)._id
-                    }
+                // metadata:{
+                //     order_id:(await newOrder)._id
+                //     }
             });
             return res.status(200).json( {session});
         }
